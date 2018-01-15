@@ -1,13 +1,13 @@
 {
 	"name":"node-red-contrib-mios",
-	"version":"0.0.1",
+	"version":"0.1.0",
 	"description":"A node for mios/Vera",
 	"license": "MIT",
 	"repository":{
 		"type":"git",
 		"url":"https://github.com/jerpa/node-red-contrib-mios.git"
 	},
-	"keywords": [ "mios","Vera" ],
+	"keywords": [ "node-red","mios","Vera" ],
 	"node-red": {
 		"nodes": {
 			"mios": "mios.js"
