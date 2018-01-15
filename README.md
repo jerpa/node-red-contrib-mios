@@ -20,5 +20,3 @@ Incoming events can be filtered so you can use one mios-in node for all events, 
 
 To set items you send the value in `msg.payload` and use the mios-out node to specify the item, ie `Bedroom:Bed Light:Status`, or define the item in `msg.topic`.
 
-## License
-This project is licensed under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) license.
