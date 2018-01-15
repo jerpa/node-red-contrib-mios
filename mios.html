@@ -1,0 +1,114 @@
+<script type="text/javascript">
+    RED.nodes.registerType('mios-server',{
+	category:'config',
+	icon: "white-globe.png",
+	defaults: {
+		name:{},
+		host:{required:true},
+    port:{value:3480, required:true},
+
+	},
+	label: function() {
+		return this.name||"mios-server";
+	}
+    });
+</script>
+<script type="text/x-red" data-template-name="mios-server">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="fa fa-globe"></i> Host</label>
+        <input type="text" id="node-config-input-host" placeholder="127.0.0.1">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-tag"></i> Port</label>
+        <input type="text" id="node-config-input-port" placeholder="3480">
+    </div>
+
+</script>
+<script type="text/x-red" data-help-name="mios-server">
+   <p>The <b>MIOS-server</b> defines the connection properties.</p>
+   <p><b>Host</b> is the ip address to the unit.</p>
+   <p><b>Port</b> is the port the unit is listening on, normally 3480.</p>
+</script>
+
+<script type="text/x-red" data-template-name="mios-in">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-item"><i class="icon-tag"></i> Item</label>
+        <input type="text" id="node-input-item">
+    </div>
+
+</script>
+<script type="text/x-red" data-help-name="mios-in">
+    <p>The <b>mios-in</b> node gets the events from the unit.</p>
+    <p>Items are named in the form <b>Room:Unit:Variable</b>, ie <i>Bedroom:Bed Light:Status</i>.</p>
+    <p>The value in <b>Item</b> is a filter for the incoming events that filters from the left so if you put <i>Bedroom:</i> you will get all events from the Bedroom.</p>
+    <p>To see all events, leave the <b>Item</b> field blank. Units without a room defined in the Vera UI will get a room called <b>Unknown</b> here.</p>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('mios-in',{
+		category:'input',
+		defaults: {
+			name: {value:""},
+			server: {type:'mios-server', required:true},
+			item: {}
+		},
+		inputs:0,
+		outputs:1,
+		icon: "bridge.png",
+		color: "#A6BBCF",
+		label: function() {
+			return this.name||"mios-in";
+		}
+});
+</script>
+
+<script type="text/x-red" data-template-name="mios-out">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-item"><i class="icon-tag"></i> Item</label>
+        <input type="text" id="node-input-item">
+    </div>
+
+</script>
+<script type="text/x-red" data-help-name="mios-out">
+<p>The <b>mios-out</b> node send commands to units from msg.payload.</p>
+<p>Items are named in the form <b>Room:Unit:Variable</b>, ie <i>Bedroom:Bed Light:Status</i>.</p>
+<p>To turn on a light, set msg.payload to 1, to turn it off set it to 0.</p>
+<p>If the item is empty, item name must be defined in <b>msg.topic</b>.</p>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('mios-out',{
+		category:'output',
+		defaults: {
+			name: {value:""},
+			server: {type:'mios-server', required:true},
+			item: {}
+		},
+		inputs:1,
+		outputs:0,
+		icon: "bridge.png",
+    align: "right",
+		color: "#A6BBCF",
+		label: function() {
+			return this.name||"mios-out";
+		}
+});
+</script>
