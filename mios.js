@@ -129,7 +129,7 @@ module.exports = function(RED) {
               var item=node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable;
               var value=result.devices[dev].states[sta].value;
               if (!isNaN(value)) value=+value;
-							if (node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
+							if (typeof node.items[item] !== 'undefined' && node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
 								if (value==1) {
 									value=true;
 								} else {
