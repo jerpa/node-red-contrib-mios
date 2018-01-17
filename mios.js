@@ -129,6 +129,13 @@ module.exports = function(RED) {
               var item=node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable;
               var value=result.devices[dev].states[sta].value;
               if (!isNaN(value)) value=+value;
+							if (node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
+								if (value==1) {
+									value=true;
+								} else {
+									value=false;
+								}
+							}
 
               node.alertSubscriber(item,value);
             }
@@ -167,7 +174,7 @@ module.exports = function(RED) {
 			{
 				switch (i.service) {
 					case "urn:upnp-org:serviceId:SwitchPower1":
-						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",(value=="on"?1:(value=="off"?0:value)));
+						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
 						break;
 					case "urn:upnp-org:serviceId:Dimming1":
 						this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadLevelTarget",value);
