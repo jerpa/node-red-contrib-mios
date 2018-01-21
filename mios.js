@@ -177,7 +177,7 @@ module.exports = function(RED) {
 						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
 						break;
 					case "urn:upnp-org:serviceId:Dimming1":
-						this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadLevelTarget",value);
+						this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadlevelTarget",value);
 						break;
 					case "urn:micasaverde-com:serviceId:DoorLock1":
 						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",value);
