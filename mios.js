@@ -188,6 +188,9 @@ module.exports = function(RED) {
 					case "urn:micasaverde-com:serviceId:SecuritySensor1":
 						this.doMessage(i.device,i.service,"SetArmed&newArmedValue",value);
 						break;
+					case "urn:micasaverde-com:serviceId:TemperatureSensor1":
+						this.doMessage(i.device,i.service,"CurrentTemperature",value);
+						break;
 					default:
 						node.info(item+": Invalid service ("+i.service+")")
 				}
