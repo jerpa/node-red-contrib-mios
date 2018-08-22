@@ -153,7 +153,7 @@ module.exports = function(RED) {
 			for (var id in node.subscribers)
 			{
 				if (node.subscribers.hasOwnProperty(id)) {
-					if (item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)
+					if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src))
 					{
 					//	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
 						node.subscribers[id].node.sendme({topic:item,payload:value});
@@ -204,8 +204,8 @@ module.exports = function(RED) {
 			this.active=false;
 		});
 
-    this.subscribe=function(miosInNode,item) {
-			this.subscribers[miosInNode.id]={node:miosInNode,src:item};
+    this.subscribe=function(miosInNode,item,exact) {
+			this.subscribers[miosInNode.id]={node:miosInNode,src:item,exactMatch:exact};
 		}
 
 		this.desubscribe=function(miosInNode,done) {
@@ -227,9 +227,10 @@ module.exports = function(RED) {
 		var node=this;
 		node.name=config.name;
 		node.item=config.item;
+		node.exactMatch=config.exact;
 		node.server=config.server;
 		node.serverConfig=RED.nodes.getNode(this.server);
-		node.serverConfig.subscribe(this,node.item);
+		node.serverConfig.subscribe(this,node.item,node.exactMatch);
 		node.on("connect",function() {
 
 		});

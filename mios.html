@@ -47,12 +47,17 @@
         <label for="node-input-item"><i class="icon-tag"></i> Item</label>
         <input type="text" id="node-input-item">
     </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-exact" placeholder="" style="display:inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-exact">Exact match</label>
+    </div>
 
 </script>
 <script type="text/x-red" data-help-name="mios-in">
     <p>The <b>mios-in</b> node gets the events from the unit.</p>
     <p>Items are named in the form <b>Room:Unit:Variable</b>, ie <i>Bedroom:Bed Light:Status</i>.</p>
-    <p>The value in <b>Item</b> is a filter for the incoming events that filters from the left so if you put <i>Bedroom:</i> you will get all events from the Bedroom.</p>
+    <p>The value in <b>Item</b> is a filter for the incoming events that filters from the left (unless you check <b>Exact match</b>) so if you put <i>Bedroom:</i> you will get all events from the Bedroom.</p>
     <p>To see all events, leave the <b>Item</b> field blank. Units without a room defined in the Vera UI will get a room called <b>Unknown</b> here.</p>
 </script>
 <script type="text/javascript">
@@ -61,7 +66,8 @@
 		defaults: {
 			name: {value:""},
 			server: {type:'mios-server', required:true},
-			item: {}
+            item: {},
+            exact: {value:false}
 		},
 		inputs:0,
 		outputs:1,
