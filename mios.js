@@ -191,6 +191,9 @@ module.exports = function(RED) {
 					case "urn:upnp-org:serviceId:TemperatureSensor1":
 						this.doMessage(i.device,i.service,"CurrentTemperature",value);
 						break;
+					case "urn:micasaverde-com:serviceId:Color1":
+                        			this.doMessage(i.device,i.service,"SetColor&newColorTarget",value);
+						break;
 					default:
 						node.info(item+": Invalid service ("+i.service+")")
 				}
