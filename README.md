@@ -3,6 +3,8 @@ node-red-contrib-mios
 
 Node-RED nodes to get events from and control your MIOS/Vera unit. 
 
+Updated to force jSON response 
+
 ## Install
 
 Run the following command in your Node-RED user directory - typically `~/.node-red`:

@@ -7,6 +7,7 @@ module.exports = function(RED) {
 		node.host=config.host;
     node.port=(config.port?config.port:3480);
 		node.timer=100;
+	node.getjson = "&output_format=json";
     node.loadtime=0;
     node.dataversion=0;
     node.items=[];
@@ -56,7 +57,7 @@ module.exports = function(RED) {
     };
 
     this.updateItems=function() {
-      this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data",function(result,err) {
+      this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
         if (err!==null) node.error(err);
         else {
           node.items=[];
@@ -99,7 +100,7 @@ module.exports = function(RED) {
     }
     this.fetchData=function(full) {
 			if (!this.active) return;
-      if (full) this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2",function(result,err) {
+      if (full) this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2"+node.getjson,function(result,err) {
         if (err!==null) node.error(err);
         else {
           node.loadtime=result.LoadTime;
@@ -107,7 +108,7 @@ module.exports = function(RED) {
         }
         node.initLooper();
       });
-      else this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2&LoadTime="+this.loadtime+"&DataVersion="+this.dataversion+"&Timeout=40&MinimumDelay=0",function(result,err) {
+      else this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2&LoadTime="+this.loadtime+"&DataVersion="+this.dataversion+"&Timeout=40&MinimumDelay=0"+node.getjson,function(result,err) {
         if (err!==null)
         {
           node.loadtime=0;
@@ -164,7 +165,7 @@ module.exports = function(RED) {
 		}
 
 		this.doMessage=function(device,service,action,value) {
-			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value,function(result,error) {
+			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value+node.getjson,function(result,error) {
 			});
 		}
 
