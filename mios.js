@@ -184,7 +184,7 @@ module.exports = function(RED) {
 						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",value);
 						break;
 					case "urn:upnp-org:serviceId:TemperatureSetpoint1":
-						this.doMessage(i.device,i.service,"SetCurrentSetpoint&newCurrentSetpoint",value);
+						this.doMessage(i.device,i.service,"SetCurrentSetpoint&NewCurrentSetpoint",value);
 						break;
 					case "urn:micasaverde-com:serviceId:SecuritySensor1":
 						this.doMessage(i.device,i.service,"SetArmed&newArmedValue",value);
