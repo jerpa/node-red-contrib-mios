@@ -5,13 +5,13 @@ module.exports = function(RED) {
 
 		node.name=config.name;
 		node.host=config.host;
-        node.port=(config.port?config.port:3480);
+    node.port=(config.port?config.port:3480);
 		node.timer=100;
 		node.getjson = "&output_format=json";
-        node.loadtime=0;
-        node.dataversion=0;
-        node.items=[];
-        node.subscribers=[];
+    node.loadtime=0;
+    node.dataversion=0;
+    node.items=[];
+    node.subscribers=[];
 		node.devices=[];
 		node.rooms=[];
 		node.active=true;
@@ -28,39 +28,39 @@ module.exports = function(RED) {
   	this.loadUrl=function(url,callback) {
   		var result;
     	if (url) {
-            var http=require("http");
-  	        http.get(url,function(res) {
-    	  	    var data="";
-    			
-                res.on("data",function(d) {
-                    data+=d;
-                });
+        var http=require("http");
+        http.get(url,function(res) {
+          var data="";
 
-                res.on("end",function() {
-                try {
-                  result=JSON.parse(data);
-                } catch (e) {
-                  callback(null,RED._("mios.error.invalid-json"));
-                  return;
-                }
-
-                node.updateConnected(true);
-                callback(result,null);
-                return;
-                });
-
-            }).on("error",function(e) {
-                node.updateConnected(false);
-                callback(null,e);
-                return;
+            res.on("data",function(d) {
+                data+=d;
             });
+
+            res.on("end",function() {
+            try {
+              result=JSON.parse(data);
+            } catch (e) {
+              callback(null,RED._("mios.error.invalid-json"));
+              return;
+            }
+
+            node.updateConnected(true);
+            callback(result,null);
+            return;
+            });
+
+        }).on("error",function(e) {
+            node.updateConnected(false);
+            callback(null,e);
+            return;
+        });
     	} else {
-            callback(null,RED._("mios.error.invalid-url"));
+        callback(null,RED._("mios.error.invalid-url"));
       }
     };
 
     this.updateItems=function() {
-        this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
+      this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
         if (err!==null) {
           node.error(err);
         } else {
@@ -74,7 +74,7 @@ module.exports = function(RED) {
             node.rooms[result.rooms[room].id]={name:result.rooms[room].name,id:result.rooms[room].id};
           }
           for (var dev=0;dev<result.devices.length;dev++) {
-  					if (typeof(result.devices[dev].room)!="undefined") {
+            if (typeof(result.devices[dev].room)!="undefined") {
               node.devices[result.devices[dev].id]=node.rooms[result.devices[dev].room].name+":"+result.devices[dev].name;
               for (var sta=0;sta<result.devices[dev].states.length;sta++) {
                 // Room:Device:Variable = {service,variable,value,id,device}
@@ -87,13 +87,13 @@ module.exports = function(RED) {
       });
     };
     this.initLooper=function() {
-        node.tout = setTimeout(function() {
-            if (node.loadtime==0) {
-              node.fetchData(true);
-            } else {
-              node.fetchData(false);
-            }
-        }, node.timer);
+      node.tout = setTimeout(function() {
+        if (node.loadtime==0) {
+          node.fetchData(true);
+        } else {
+          node.fetchData(false);
+        }
+      }, node.timer);
     };
 
     this.fetchData=function(full) {
@@ -147,14 +147,14 @@ module.exports = function(RED) {
     };
 
     this.alertSubscriber=function(item,value) {
-        for (var id in node.subscribers) {
-            if (node.subscribers.hasOwnProperty(id)) {
-                if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)) {
-                //	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
-                    node.subscribers[id].node.sendme({topic:item,payload:value});
-                }
-            }
+      for (var id in node.subscribers) {
+        if (node.subscribers.hasOwnProperty(id)) {
+          if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)) {
+          //	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
+              node.subscribers[id].node.sendme({topic:item,payload:value});
+          }
         }
+      }
 
 		};
 
