@@ -1,42 +1,41 @@
 module.exports = function(RED) {
-	function MiosServer(config) {
-		RED.nodes.createNode(this,config);
-		var node=this;
-
-		node.name=config.name;
-		node.host=config.host;
+  function MiosServer(config) {
+    RED.nodes.createNode(this,config);
+    var node=this;
+    node.name=config.name;
+    node.host=config.host;
     node.port=(config.port?config.port:3480);
-		node.timer=100;
-		node.getjson = "&output_format=json";
+    node.timer=100;
+    node.getjson = "&output_format=json";
     node.loadtime=0;
     node.dataversion=0;
     node.items=[];
     node.subscribers=[];
-		node.devices=[];
-		node.rooms=[];
-		node.active=true;
+    node.devices=[];
+    node.rooms=[];
+    node.active=true;
 
-		this.updateConnected=function(connected) {
-			node.timer=(connected?100:10000);
-			for (var id in node.subscribers) {
-				if (node.subscribers.hasOwnProperty(id)) {
-				  node.subscribers[id].node.updateConnected(connected);
-				}
-			}
-	  };
+    this.updateConnected=function(connected) {
+      node.timer=(connected?100:10000);
+      for (var id in node.subscribers) {
+        if (node.subscribers.hasOwnProperty(id)) {
+          node.subscribers[id].node.updateConnected(connected);
+        }
+      }
+    };
 
-  	this.loadUrl=function(url,callback) {
-  		var result;
-    	if (url) {
+    this.loadUrl=function(url,callback) {
+      var result;
+      if (url) {
         var http=require("http");
         http.get(url,function(res) {
           var data="";
 
-            res.on("data",function(d) {
-                data+=d;
-            });
+          res.on("data",function(d) {
+            data+=d;
+          });
 
-            res.on("end",function() {
+          res.on("end",function() {
             try {
               result=JSON.parse(data);
             } catch (e) {
@@ -47,14 +46,14 @@ module.exports = function(RED) {
             node.updateConnected(true);
             callback(result,null);
             return;
-            });
+          });
 
         }).on("error",function(e) {
-            node.updateConnected(false);
-            callback(null,e);
-            return;
+          node.updateConnected(false);
+          callback(null,e);
+          return;
         });
-    	} else {
+      } else {
         callback(null,RED._("mios.error.invalid-url"));
       }
     };
@@ -150,62 +149,62 @@ module.exports = function(RED) {
       for (var id in node.subscribers) {
         if (node.subscribers.hasOwnProperty(id)) {
           if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)) {
-          //	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
+          //  node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
               node.subscribers[id].node.sendme({topic:item,payload:value});
           }
         }
       }
 
-		};
+    };
 
-		this.doMessage=function(device,service,action,value) {
-			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value+node.getjson,function(result,error) {
-			});
-		};
+    this.doMessage=function(device,service,action,value) {
+      node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value+node.getjson,function(result,error) {
+      });
+    };
 
-		this.sendMessage=function(item,value) {
-			var i=node.items[item];
-			if (i) {
-				switch (i.service) {
-					case "urn:upnp-org:serviceId:SwitchPower1":
-						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
-						break;
-					case "urn:upnp-org:serviceId:Dimming1":
-						this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadlevelTarget",value);
-						break;
-					case "urn:micasaverde-com:serviceId:DoorLock1":
-						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",value);
-						break;
-					case "urn:upnp-org:serviceId:TemperatureSetpoint1":
-						this.doMessage(i.device,i.service,"SetCurrentSetpoint&NewCurrentSetpoint",value);
-						break;
-					case "urn:micasaverde-com:serviceId:SecuritySensor1":
-						this.doMessage(i.device,i.service,"SetArmed&newArmedValue",value);
-						break;
-					case "urn:upnp-org:serviceId:TemperatureSensor1":
-						this.doMessage(i.device,i.service,"CurrentTemperature",value);
-						break;
-					default:
-						node.info(item+": Invalid service ("+i.service+")");
-				}
-			}
-		};
+    this.sendMessage=function(item,value) {
+      var i=node.items[item];
+      if (i) {
+        switch (i.service) {
+          case "urn:upnp-org:serviceId:SwitchPower1":
+            this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
+            break;
+          case "urn:upnp-org:serviceId:Dimming1":
+            this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadlevelTarget",value);
+            break;
+          case "urn:micasaverde-com:serviceId:DoorLock1":
+            this.doMessage(i.device,i.service,"SetTarget&newTargetValue",value);
+            break;
+          case "urn:upnp-org:serviceId:TemperatureSetpoint1":
+            this.doMessage(i.device,i.service,"SetCurrentSetpoint&NewCurrentSetpoint",value);
+            break;
+          case "urn:micasaverde-com:serviceId:SecuritySensor1":
+            this.doMessage(i.device,i.service,"SetArmed&newArmedValue",value);
+            break;
+          case "urn:upnp-org:serviceId:TemperatureSensor1":
+            this.doMessage(i.device,i.service,"CurrentTemperature",value);
+            break;
+          default:
+            node.info(item+": Invalid service ("+i.service+")");
+        }
+      }
+    };
 
     node.on("close",function() {
-			this.subscribers=[];
-			if (this.tout) {
-				clearInterval(this.tout); }
-			this.active=false;
-		});
+      this.subscribers=[];
+      if (this.tout) {
+        clearInterval(this.tout); }
+      this.active=false;
+    });
 
     this.subscribe=function(miosInNode,item,exact) {
-			this.subscribers[miosInNode.id]={node:miosInNode,src:item,exactMatch:exact};
-		};
+      this.subscribers[miosInNode.id]={node:miosInNode,src:item,exactMatch:exact};
+    };
 
-		this.desubscribe=function(miosInNode,done) {
-			delete this.subscribers[miosInNode.id];
-			done();
-		};
+    this.desubscribe=function(miosInNode,done) {
+      delete this.subscribers[miosInNode.id];
+      done();
+    };
 
 
     // Initial read
@@ -216,51 +215,51 @@ module.exports = function(RED) {
   RED.nodes.registerType("mios-server",MiosServer);
 
   function MiosInNode(config) {
-		RED.nodes.createNode(this,config);
-		var node=this;
-		node.name=config.name;
-		node.item=config.item;
-		node.exactMatch=config.exact;
-		node.server=config.server;
-		node.serverConfig=RED.nodes.getNode(this.server);
-		node.serverConfig.subscribe(this,node.item,node.exactMatch);
-		node.on("connect",function() {
+    RED.nodes.createNode(this,config);
+    var node=this;
+    node.name=config.name;
+    node.item=config.item;
+    node.exactMatch=config.exact;
+    node.server=config.server;
+    node.serverConfig=RED.nodes.getNode(this.server);
+    node.serverConfig.subscribe(this,node.item,node.exactMatch);
+    node.on("connect",function() {
 
-		});
-		node.on("close",function() {
+    });
+    node.on("close",function() {
 
-		});
-		this.sendme=function(msg) {
-			try { 
+    });
+    this.sendme=function(msg) {
+      try { 
         node.send(msg); 
       } catch(e) {
 
       }
-		};
-		this.updateConnected=function(connected) {
-			if (connected) {
-				node.status({fill:"green",shape:"dot",text:"node-red:common.status.connected"});
-			} else {
-				this.status({fill:"red",shape:"ring",text:"node-red:common.status.disconnected"});
-			}
-		};
-	}
-	RED.nodes.registerType("mios-in",MiosInNode);
+    };
+    this.updateConnected=function(connected) {
+      if (connected) {
+        node.status({fill:"green",shape:"dot",text:"node-red:common.status.connected"});
+      } else {
+        this.status({fill:"red",shape:"ring",text:"node-red:common.status.disconnected"});
+      }
+    };
+  }
+  RED.nodes.registerType("mios-in",MiosInNode);
 
   function MiosOutNode(config) {
-		RED.nodes.createNode(this,config);
-		var node=this;
-		node.name=config.name;
-		node.item=config.item;
-		node.server=config.server;
-		node.serverConfig=RED.nodes.getNode(this.server);
-		node.on("connect",function() {
+    RED.nodes.createNode(this,config);
+    var node=this;
+    node.name=config.name;
+    node.item=config.item;
+    node.server=config.server;
+    node.serverConfig=RED.nodes.getNode(this.server);
+    node.on("connect",function() {
 
-		});
-		node.on("input",function(msg) {
-			var target=(node.item?node.item:msg.topic);
-			node.serverConfig.sendMessage(target,msg.payload);
-		});
-	}
-	RED.nodes.registerType("mios-out",MiosOutNode);
+    });
+    node.on("input",function(msg) {
+      var target=(node.item?node.item:msg.topic);
+      node.serverConfig.sendMessage(target,msg.payload);
+    });
+  }
+  RED.nodes.registerType("mios-out",MiosOutNode);
 };
