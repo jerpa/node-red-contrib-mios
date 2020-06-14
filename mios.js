@@ -24,7 +24,7 @@ module.exports = function(RED) {
 						node.subscribers[id].node.updateConnected(connected);
 				}
 			}
-		}
+		};
 
     this.loadUrl=function(url,callback) {
       var result;
@@ -48,7 +48,7 @@ module.exports = function(RED) {
             return;
           });
         }).on("error",function(e) {
-					node.updateConnected(false)
+					node.updateConnected(false);
           callback(null,e);
           return;
         });
@@ -65,10 +65,10 @@ module.exports = function(RED) {
           node.devices=[];
           node.loadtime=result.LoadTime;
           node.dataversion=result.DataVersion;
-          node.rooms[0]={name:"Unknown",id:0}
+          node.rooms[0]={name:"Unknown",id:0};
           for (var room=0;room<result.rooms.length;room++)
           {
-            node.rooms[result.rooms[room].id]={name:result.rooms[room].name,id:result.rooms[room].id}
+            node.rooms[result.rooms[room].id]={name:result.rooms[room].name,id:result.rooms[room].id};
           }
           for (var dev=0;dev<result.devices.length;dev++)
           {
@@ -84,7 +84,7 @@ module.exports = function(RED) {
           }
         }
       });
-    }
+    };
     this.initLooper=function() {
       node.tout = setTimeout(function() {
       if (node.loadtime==0)
@@ -97,7 +97,7 @@ module.exports = function(RED) {
       }
     }, node.timer);
 
-    }
+    };
     this.fetchData=function(full) {
 			if (!this.active) return;
       if (full) this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2"+node.getjson,function(result,err) {
@@ -148,7 +148,7 @@ module.exports = function(RED) {
 
       });
 
-    }
+    };
 
     this.alertSubscriber=function(item,value) {
 			for (var id in node.subscribers)
@@ -162,12 +162,12 @@ module.exports = function(RED) {
 				}
 			}
 
-		}
+		};
 
 		this.doMessage=function(device,service,action,value) {
 			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value+node.getjson,function(result,error) {
 			});
-		}
+		};
 
 		this.sendMessage=function(item,value) {
 			var i=node.items[item];
@@ -193,10 +193,10 @@ module.exports = function(RED) {
 						this.doMessage(i.device,i.service,"CurrentTemperature",value);
 						break;
 					default:
-						node.info(item+": Invalid service ("+i.service+")")
+						node.info(item+": Invalid service ("+i.service+")");
 				}
 			}
-		}
+		};
 
     node.on("close",function() {
 			this.subscribers=[];
@@ -207,12 +207,12 @@ module.exports = function(RED) {
 
     this.subscribe=function(miosInNode,item,exact) {
 			this.subscribers[miosInNode.id]={node:miosInNode,src:item,exactMatch:exact};
-		}
+		};
 
 		this.desubscribe=function(miosInNode,done) {
 			delete this.subscribers[miosInNode.id];
 			done();
-		}
+		};
 
 
     // Initial read
@@ -237,18 +237,18 @@ module.exports = function(RED) {
 		});
 		node.on("close",function() {
 
-		})
+		});
 		this.sendme=function(msg) {
 			try { node.send(msg); }
 			catch(e) {}
-		}
+		};
 		this.updateConnected=function(connected) {
 			if (connected) {
 				node.status({fill:"green",shape:"dot",text:"node-red:common.status.connected"});
 			} else {
 				this.status({fill:"red",shape:"ring",text:"node-red:common.status.disconnected"});
 			}
-		}
+		};
 	}
 	RED.nodes.registerType("mios-in",MiosInNode);
 
@@ -269,3 +269,4 @@ module.exports = function(RED) {
 	}
 	RED.nodes.registerType("mios-out",MiosOutNode);
 };
+
