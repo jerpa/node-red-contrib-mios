@@ -56,7 +56,8 @@ module.exports = function(RED) {
         });
       } else {
         callback(null,RED._("mios.error.invalid-url"));
-      };
+      }
+    };
 
     this.updateItems=function() {
       this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
@@ -97,52 +98,54 @@ module.exports = function(RED) {
     };
 
     this.fetchData=function(full) {
-			if (!this.active) return;
-      if (full) this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2"+node.getjson,function(result,err) {
-        if (err!==null) {
-          node.error(err);
-        } else {
-          node.loadtime=result.LoadTime;
-          node.dataversion=result.DataVersion;
-        }
-        // node.initLooper(); // don't need to call this function recursively
-      });
-    } else {
-      this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2&LoadTime="+this.loadtime+"&DataVersion="+this.dataversion+"&Timeout=40&MinimumDelay=0"+node.getjson,function(result,err) {
-        if (err!==null) {
-          node.loadtime=0;
-          node.dataversion=0;
-          node.error(err);
-        } else {
-          node.loadtime=result.LoadTime;
-          node.dataversion=result.DataVersion;
+      if (!this.active) return;
 
-          if (typeof(result.devices)!="undefined" && result.devices!==null) {
-            for (var dev=0;dev<result.devices.length;dev++) {
-              if (typeof(result.devices[dev].states)!="undefined" && result.devices[dev].states!==null) {
-                for (var sta=0;sta<result.devices[dev].states.length;sta++) {
-                  var item=node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable;
-                  var value=result.devices[dev].states[sta].value;
-                  if (!isNaN(value)) value=+value;
-    							if (typeof node.items[item] !== 'undefined' && node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
-    								if (value==1) {
-    									value=true;
-    								} else {
-    									value=false;
-    								}
-    							}
+      if (full) {
+        this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2"+node.getjson,function(result,err) {
+          if (err!==null) {
+            node.error(err);
+          } else {
+            node.loadtime=result.LoadTime;
+            node.dataversion=result.DataVersion;
+          }
+          // node.initLooper(); // don't need to call this function recursively
+        });
+      } else {
+        this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=status2&LoadTime="+this.loadtime+"&DataVersion="+this.dataversion+"&Timeout=40&MinimumDelay=0"+node.getjson,function(result,err) {
+          if (err!==null) {
+            node.loadtime=0;
+            node.dataversion=0;
+            node.error(err);
+          } else {
+            node.loadtime=result.LoadTime;
+            node.dataversion=result.DataVersion;
 
-                  node.alertSubscriber(item,value);
+            if (typeof(result.devices)!="undefined" && result.devices!==null) {
+              for (var dev=0;dev<result.devices.length;dev++) {
+                if (typeof(result.devices[dev].states)!="undefined" && result.devices[dev].states!==null) {
+                  for (var sta=0;sta<result.devices[dev].states.length;sta++) {
+                    var item=node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable;
+                    var value=result.devices[dev].states[sta].value;
+                    if (!isNaN(value)) value=+value;
+      							if (typeof node.items[item] !== 'undefined' && node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
+      								if (value==1) {
+      									value=true;
+      								} else {
+      									value=false;
+      								}
+      							}
+
+                    node.alertSubscriber(item,value);
+                  }
                 }
               }
             }
           }
-        }
-      
-        node.initLooper();
+        
+        // node.initLooper(); // don't need to call this function recursively
 
-      });
-
+        });
+      }
     };
 
     this.alertSubscriber=function(item,value) {
