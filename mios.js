@@ -5,13 +5,13 @@ module.exports = function(RED) {
 
 		node.name=config.name;
 		node.host=config.host;
-    node.port=(config.port?config.port:3480);
+        node.port=(config.port?config.port:3480);
 		node.timer=100;
 		node.getjson = "&output_format=json";
-    node.loadtime=0;
-  	node.dataversion=0;
-    node.items=[];
-  	node.subscribers=[];
+        node.loadtime=0;
+        node.dataversion=0;
+        node.items=[];
+        node.subscribers=[];
 		node.devices=[];
 		node.rooms=[];
 		node.active=true;
@@ -28,39 +28,39 @@ module.exports = function(RED) {
   	this.loadUrl=function(url,callback) {
   		var result;
     	if (url) {
-  			var http=require("http");
-  	    http.get(url,function(res) {
-    	  	var data="";
+            var http=require("http");
+  	        http.get(url,function(res) {
+    	  	    var data="";
     			
-          res.on("data",function(d) {
-    			  data+=d;
-          });
+                res.on("data",function(d) {
+                    data+=d;
+                });
 
-          res.on("end",function() {
-            try {
-              result=JSON.parse(data);
-            } catch (e) {
-              callback(null,RED._("mios.error.invalid-json"));
-              return;
-            }
+                res.on("end",function() {
+                try {
+                  result=JSON.parse(data);
+                } catch (e) {
+                  callback(null,RED._("mios.error.invalid-json"));
+                  return;
+                }
 
-    			  node.updateConnected(true);
-            callback(result,null);
-            return;
-          });
+                node.updateConnected(true);
+                callback(result,null);
+                return;
+                });
 
-        }).on("error",function(e) {
-					node.updateConnected(false);
-          callback(null,e);
-          return;
-        });
-      } else {
-        callback(null,RED._("mios.error.invalid-url"));
+            }).on("error",function(e) {
+                node.updateConnected(false);
+                callback(null,e);
+                return;
+            });
+    	} else {
+            callback(null,RED._("mios.error.invalid-url"));
       }
     };
 
     this.updateItems=function() {
-      this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
+        this.loadUrl("http://"+this.host+":"+this.port+"/data_request?id=user_data"+node.getjson,function(result,err) {
         if (err!==null) {
           node.error(err);
         } else {
@@ -81,20 +81,19 @@ module.exports = function(RED) {
                 node.items[node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable]=result.devices[dev].states[sta];
                 node.items[node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable].device=result.devices[dev].id;
               }
-  					}
+            }
           }
         }
       });
     };
     this.initLooper=function() {
-      node.tout = setTimeout(function() {
-        if (node.loadtime==0) {
-          node.fetchData(true);
-        } else {
-          node.fetchData(false);
-        }
-      }, node.timer);
-
+        node.tout = setTimeout(function() {
+            if (node.loadtime==0) {
+              node.fetchData(true);
+            } else {
+              node.fetchData(false);
+            }
+        }, node.timer);
     };
 
     this.fetchData=function(full) {
@@ -127,14 +126,13 @@ module.exports = function(RED) {
                     var item=node.devices[result.devices[dev].id]+":"+result.devices[dev].states[sta].variable;
                     var value=result.devices[dev].states[sta].value;
                     if (!isNaN(value)) value=+value;
-      							if (typeof node.items[item] !== 'undefined' && node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
-      								if (value==1) {
-      									value=true;
-      								} else {
-      									value=false;
-      								}
-      							}
-
+                        if (typeof node.items[item] !== 'undefined' && node.items[item].service=="urn:upnp-org:serviceId:SwitchPower1") {
+                            if (value==1) {
+                                value=true;
+                            } else {
+                                value=false;
+                            }
+                        }
                     node.alertSubscriber(item,value);
                   }
                 }
@@ -149,14 +147,14 @@ module.exports = function(RED) {
     };
 
     this.alertSubscriber=function(item,value) {
-			for (var id in node.subscribers) {
-				if (node.subscribers.hasOwnProperty(id)) {
-					if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)) {
-					//	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
-						node.subscribers[id].node.sendme({topic:item,payload:value});
-					}
-				}
-			}
+        for (var id in node.subscribers) {
+            if (node.subscribers.hasOwnProperty(id)) {
+                if ((node.subscribers[id].exactMatch && node.subscribers[id].src==item) || (!node.subscribers[id].exactMatch && item.length>=node.subscribers[id].src.length && item.substring(0,node.subscribers[id].src.length)==node.subscribers[id].src)) {
+                //	node.debug(id+" > "+node.subscribers[id].src+" : "+item+"="+value)
+                    node.subscribers[id].node.sendme({topic:item,payload:value});
+                }
+            }
+        }
 
 		};
 
