@@ -165,7 +165,7 @@ module.exports = function(RED) {
 		}
 
 		this.doMessage=function(device,service,action,value) {
-			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+"="+value+node.getjson,function(result,error) {
+			node.loadUrl("http://"+node.host+":"+node.port+"/data_request?id=action&output_format=json&DeviceNum="+device+"&serviceId="+service+"&action="+action+((value===null)?"":"="+value)+node.getjson,function(result,error) {
 			});
 		}
 
@@ -175,7 +175,11 @@ module.exports = function(RED) {
 			{
 				switch (i.service) {
 					case "urn:upnp-org:serviceId:SwitchPower1":
-						this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
+						if (value==="toggle") {
+                                                  this.doMessage(i.device,"urn:micasaverde-com:serviceId:HaDevice1","ToggleState",null)
+                                                } else {
+                                                  this.doMessage(i.device,i.service,"SetTarget&newTargetValue",((value=="on" || value==true)?1:((value=="off" || value==false)?0:value)));
+                                                }
 						break;
 					case "urn:upnp-org:serviceId:Dimming1":
 						this.doMessage(i.device,i.service,"SetLoadLevelTarget&newLoadlevelTarget",value);
